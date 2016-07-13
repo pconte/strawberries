@@ -1,0 +1,16 @@
+{
+  "name": "strawberries",
+  "version": "0.0.1",
+  "description": "repeatedly query Puget Sound OBA API during Vashon Strawberry Festival",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pconte/strawberries"
+  },
+  "bugs": {
+    "url": "https://github.com/nodejitsu/browsenpm.org/issues"
+  },
+  "dependencies": {
+    "node-rest-client": "^2.0.1"
+  }
+}
