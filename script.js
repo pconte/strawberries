@@ -4,7 +4,7 @@ var client = new Client();
 var tripsForRouteUrl;
 var tripDetailsUrl;
 
-var routeId = '1_100016';
+var routeId = '1_100016'; // this is the routeId for route #118
 var trips = [];
 var tripId;
 var status;
@@ -15,7 +15,7 @@ setInterval(function () {
 
   client.get(tripsForRouteUrl, function (data, response) {
     trips = data.data.references.trips;
-    console.log(data.currentTime, trips);
+    //console.log(data.currentTime, trips);
 
     trips.forEach(function (trip) {
       tripId = trip.id;
