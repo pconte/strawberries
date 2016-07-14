@@ -2,12 +2,30 @@ var Client = require('node-rest-client').Client;
 var client = new Client();
 
 var winston = require('winston');
+var myCustomLevels = {
+    levels: {
+      error: 0,
+      warn: 1,
+      info: 2,
+      debug: 3,
+      data: 4
+    },
+    colors: {
+      error: 'red',
+      warn: 'yellow',
+      info: 'green',
+      debug: 'blue',
+      data: 'purple'
+    }
+  };
+
 var logger = new (winston.Logger)({
+  levels: myCustomLevels.levels,
   transports: [
     new (winston.transports.Console)({ level: 'debug' }),
     new (winston.transports.File)({
       filename: 'data.log',
-      level: 'silly'
+      level: 'data'
     })
   ]
 });
@@ -41,7 +59,7 @@ setInterval(function () {
           tripId: status.activeTripId,
           location: status.lastKnownLocation
         };
-        logger.log('silly', JSON.stringify(row));
+        logger.log('data', JSON.stringify(row));
       });
     });
   });
