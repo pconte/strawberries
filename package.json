@@ -11,6 +11,7 @@
     "url": "https://github.com/nodejitsu/browsenpm.org/issues"
   },
   "dependencies": {
-    "node-rest-client": "^2.0.1"
+    "node-rest-client": "^2.0.1",
+    "winston": "^2.2.0"
   }
 }
