@@ -30,30 +30,22 @@ var logger = new (winston.Logger)({
   ]
 });
 
-var tripsForRouteUrl;
-var tripDetailsUrl;
-
 var routeIds = ['1_100016', '1_100017']; // these are the routeIds for routes #118 and #119
-var trips = [];
-var tripId;
-var status;
-
-var row;
 
 routeIds.forEach(function (routeId) {
   setInterval(function () {
-    tripsForRouteUrl = `http://api.pugetsound.onebusaway.org/api/where/trips-for-route/${routeId}.json?key=TEST`;
+    var tripsForRouteUrl = `http://api.pugetsound.onebusaway.org/api/where/trips-for-route/${routeId}.json?key=TEST`;
 
     client.get(tripsForRouteUrl, function (data, response) {
-      trips = data.data.references.trips;
+      var trips = data.data.references.trips;
 
       trips.forEach(function (trip) {
-        tripId = trip.id;
-        tripDetailsUrl = `http://api.pugetsound.onebusaway.org/api/where/trip-details/${tripId}.json?key=TEST`;
+        var tripId = trip.id;
+        var tripDetailsUrl = `http://api.pugetsound.onebusaway.org/api/where/trip-details/${tripId}.json?key=TEST`;
 
         client.get(tripDetailsUrl, function (data, response) {
-          status = data.data.entry.status;
-          row = {
+          var status = data.data.entry.status;
+          var row = {
             time: data.currentTime,
             routeId: routeId,
             activeTripId: status.activeTripId,
@@ -66,13 +58,17 @@ routeIds.forEach(function (routeId) {
         });
       });
     });
-  }, 1000);
+  }, 1000); // interval in milliseconds to gather data for a single row
 });
 
 /*
 TODO:
-- get a list of all routes that are currently running
-- or alternatively, directly get all vehicles currently running (and derive rest of the data from the vehicles)
-- likely change the API requests (but it seems like the nested flow inside a SetInterval will still work?)
 - how often should the Interval loop run?
+*/
+
+/*
+Strategies for analyzing the data:
+- filter out redundant rows (and keep count)
+- calculate difference between various timestamp-related fields
+- plot locations and timestamps in some kind of visualizations
 */
