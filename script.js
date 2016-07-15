@@ -50,9 +50,14 @@ routeIds.forEach(function (routeId) {
             routeId: routeId,
             activeTripId: status.activeTripId,
             status: status.status,
+            serviceDate: status.serviceDate,
+            orientation: status.orientation,
+            lastKnownOrientation: status.lastKnownOrientation,
+            phase: status.phase,
             lastKnownLocation: status.lastKnownLocation,
             position: status.position,
-            vehicleId: status.vehicleId
+            vehicleId: status.vehicleId,
+            situationIds: status.situationIds
           };
           logger.data(JSON.stringify(row));
         });
