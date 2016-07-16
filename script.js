@@ -1,3 +1,19 @@
+const FREQUENCY = 1000 * 30; // interval in milliseconds to gather data for a single row
+const WHITELIST = [
+  'activeTripId',
+  'status',
+  'serviceDate',
+  'orientation',
+  'lastKnownOrientation',
+  'phase',
+  'lastKnownLocation',
+  'position',
+  'vehicleId',
+  'situationIds'
+];
+var os = require('os');
+const MACHINE_ID=os.hostname();
+
 var Client = require('node-rest-client').Client;
 var client = new Client();
 
@@ -45,26 +61,42 @@ routeIds.forEach(function (routeId) {
 
         client.get(tripDetailsUrl, function (data, response) {
           var status = data.data.entry.status;
-          var row = {
-            time: data.currentTime,
-            routeId: routeId,
-            activeTripId: status.activeTripId,
-            status: status.status,
-            serviceDate: status.serviceDate,
-            orientation: status.orientation,
-            lastKnownOrientation: status.lastKnownOrientation,
-            phase: status.phase,
-            lastKnownLocation: status.lastKnownLocation,
-            position: status.position,
-            vehicleId: status.vehicleId,
-            situationIds: status.situationIds
-          };
-          logger.data(JSON.stringify(row));
+          var row = cloneWhitelist(status, WHITELIST);
+          row.mid = MACHINE_ID;
+          row.dataTime = data.currentTime;
+          row.time = Date.now();
+          logger.data(row);
         });
       });
     });
-  }, 1000); // interval in milliseconds to gather data for a single row
+  }, FREQUENCY);
 });
+
+logger.data({
+  time: Date.now(),
+  ev: 'start',
+  mid: MACHINE_ID,
+  fq: FREQUENCY
+});
+
+process.on( 'SIGINT', function() {
+  logger.data({
+    time: Date.now(),
+    mid: MACHINE_ID,
+    ev: 'stop'
+  });
+  process.exit( );
+})
+
+function cloneWhitelist (o, wl) {
+  var o1;
+  for (var k in o) {
+    if (wl.indexOf(k) !== -1) {
+      o1[k] = o[k];
+    }
+  }
+  return o1;
+}
 
 /*
 TODO:
