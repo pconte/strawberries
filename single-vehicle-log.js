@@ -1,4 +1,6 @@
-const FREQUENCY = 1000 * 30; // interval in milliseconds to gather data for a single row
+#!/usr/bin/env node
+
+const FREQUENCY = 1000 * 10; // interval in milliseconds to gather data for a single row
 const WHITELIST = [
   'activeTripId',
   'status',
@@ -11,6 +13,8 @@ const WHITELIST = [
   'vehicleId',
   'situationIds'
 ];
+const KEY = '3b395257-2eb8-4d5e-adcf-70103c6b5a41';
+
 var os = require('os');
 const MACHINE_ID=os.hostname();
 
@@ -46,31 +50,25 @@ var logger = new (winston.Logger)({
   ]
 });
 
-var routeIds = ['1_100016', '1_100017']; // these are the routeIds for routes #118 and #119
+var vehicleId = '1_3756';
 
-routeIds.forEach(function (routeId) {
-  setInterval(function () {
-    var tripsForRouteUrl = `http://api.pugetsound.onebusaway.org/api/where/trips-for-route/${routeId}.json?key=TEST`;
+var positionsUrl = `http://api.pugetsound.onebusaway.org/api/where/vehicle/1_3756.xml?key=${KEY}`;
 
-    client.get(tripsForRouteUrl, function (data, response) {
-      var trips = data.data.references.trips;
-
-      trips.forEach(function (trip) {
-        var tripId = trip.id;
-        var tripDetailsUrl = `http://api.pugetsound.onebusaway.org/api/where/trip-details/${tripId}.json?key=TEST`;
-
-        client.get(tripDetailsUrl, function (data, response) {
-          var status = data.data.entry.status;
-          var row = cloneWhitelist(status, WHITELIST);
-          row.mid = MACHINE_ID;
-          row.dataTime = data.currentTime;
-          row.time = Date.now();
-          logger.data(row);
-        });
-      });
-    });
-  }, FREQUENCY);
-});
+setInterval(function () {
+  try{
+  client.get(positionsUrl, function (data, response) {
+    var row = {
+      mid: MACHINE_ID,
+      dataTime: data.currentTime,
+      time: Date.now(),
+      entry: data.response.data[0].entry
+    };
+    logger.data(row);
+  });
+  }catch(e){
+    console.error(e);
+  }
+}, FREQUENCY);
 
 logger.data({
   time: Date.now(),
@@ -89,7 +87,7 @@ process.on( 'SIGINT', function() {
 })
 
 function cloneWhitelist (o, wl) {
-  var o1;
+  var o1 = {};
   for (var k in o) {
     if (wl.indexOf(k) !== -1) {
       o1[k] = o[k];
