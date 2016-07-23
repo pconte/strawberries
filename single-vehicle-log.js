@@ -44,7 +44,7 @@ var logger = new (winston.Logger)({
   transports: [
     new (winston.transports.Console)({ level: 'data' }),
     new (winston.transports.File)({
-      filename: 'data.log',   // Name of log file.  Consider deleting it if it preexists.
+      filename: 'single-vehicle-log.log',   // Name of log file.  Consider deleting it if it preexists.
       level: 'data'
     })
   ]
