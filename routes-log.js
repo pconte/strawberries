@@ -51,7 +51,7 @@ var logger = new (winston.Logger)({
 });
 
 var routeIds = ['1_100016', '1_100017']; // these are the routeIds for routes #118 and #119
-var vehicles = {};
+var vehicles = {}; //TODO: track by tripID, not vehicle id. Make this a more complex object for keeping consistent details
 
 routeIds.forEach(function (routeId) {
   tripsForRoute(routeId);
@@ -63,13 +63,18 @@ routeIds.forEach(function (routeId) {
 function tripDetails(tripDetailsUrl) {
   client.get(tripDetailsUrl, function (data, response) {
     var status = data.data.entry.status;
-    var existingV = vehicles[status.vehicleId];
+    var existingV = status.vehicleId ? vehicles[status.vehicleId] : getExistingVehicleByTripId(status.activeTripId);
     var now = new Date().getTime();
     var elapsedS = existingV ? Math.floor((now - existingV.time) / 1000) : null;
 
     if (!status.vehicleId) {
-      console.error('Vehicle id is missing!', status);
-      return;
+      if (existingV) {
+        status.missingVehicleId = existingV.vehicleId || existingV.missingVehicleId;
+      }
+      else {
+        console.error('vehicleId is missing and we do not know the vehicle for the trip', status);
+          return;
+      }
     }
     if (positionsMatch(existingV, status)) {
       console.log(`positions match for ${status.vehicleId} for ${elapsedS} seconds`);
@@ -84,6 +89,15 @@ function tripDetails(tripDetailsUrl) {
     vehicles[status.vehicleId] = row;
     logger.data(row);
   });
+}
+
+function getExistingVehicleByTripId(tripId) {
+  for (var k in vehicles) {
+    if (vehicles[k].activeTripId === tripId) {
+      return vehicles[k];
+    }
+  }
+  return null;
 }
 
 function tripsForRoute(routeId) {
@@ -112,7 +126,7 @@ function tripsForRoute(routeId) {
 
 function positionsMatch(a, b) {
   if (!a || !b) return false;
-  return (a.lastKnownLocation === b.lastKnownLocation || (a.lastKnownLocation.lat === b.lastKnownLocation.lat &&
+  return (a.lastKnownLocation === null || b.lastKnownLocation === null || (a.lastKnownLocation.lat === b.lastKnownLocation.lat &&
     a.lastKnownLocation.lon === b.lastKnownLocation.lon)) && 
     a.position.lat === b.position.lat &&
     a.position.lon === b.position.lon;

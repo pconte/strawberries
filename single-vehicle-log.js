@@ -50,7 +50,7 @@ var logger = new (winston.Logger)({
   ]
 });
 
-var vehicleId = '1_3756';
+var vehicleId = '1_3735';
 
 var positionsUrl = `http://api.pugetsound.onebusaway.org/api/where/vehicle/1_3756.xml?key=${KEY}`;
 
